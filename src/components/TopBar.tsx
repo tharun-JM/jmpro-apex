@@ -21,10 +21,7 @@ export default function TopBar() {
   return (
     <div className="topbar">
       <div className="tl">
-        <Logo size={28} />
-        <div className="logo-text" style={{ fontSize: 16, fontWeight: 700 }}>
-          JM<span>Pro</span>
-        </div>
+        <Logo size={32} />
       </div>
       <nav className="tnav">
         {navItems.map((item) => (

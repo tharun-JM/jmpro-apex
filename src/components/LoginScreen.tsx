@@ -37,8 +37,7 @@ export default function LoginScreen() {
     <div className="login-screen">
       <div className="login-card">
         <div className="login-logo">
-          <Logo size={40} />
-          <div className="logo-text">JM<span>Pro</span>&thinsp;<span style={{ fontSize: 10, color: 'var(--gold)', fontWeight: 700, letterSpacing: 2, opacity: 0.75 }}>APEX</span></div>
+          <Logo size={48} />
         </div>
         <div className="login-eyebrow">HNI Wealth Platform</div>
         <h1 className="login-title">Welcome back</h1>
