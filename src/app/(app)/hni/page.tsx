@@ -10,6 +10,7 @@ import AIPanel from '@/components/AIPanel';
 import { fmt } from '@/lib/utils';
 
 type Tab = 'current' | 'invested' | 'tax';
+type HoldingTab = 'jm-eq' | 'jm-mf' | 'external';
 type ExtFilter = 'all' | 'mf' | 'eq';
 
 export default function HNIPage() {
@@ -17,6 +18,7 @@ export default function HNIPage() {
   const { panConnected, connectPan, openAddAsset, openTaxSim, selfAssets, deleteSelfAsset } = useApp();
 
   const [tab, setTab] = useState<Tab>('current');
+  const [holdingTab, setHoldingTab] = useState<HoldingTab>('jm-eq');
   const [extFilter, setExtFilter] = useState<ExtFilter>('all');
   const [panFormOpen, setPanFormOpen] = useState(false);
   const [panValue, setPanValue] = useState('');
@@ -107,24 +109,36 @@ export default function HNIPage() {
                 <div className="sc" style={{ borderColor: 'rgba(16,185,129,.2)' }}>
                   <div className="sc-lbl">JMPro Current Value</div>
                   <div className="sc-val gold">₹11.52 Cr</div>
-                  <div className="sc-chg"><span className="pos">↑ ₹84K this month</span></div>
+                  <div className="sc-chg"><span className="pos">↑ ₹84K &nbsp;·&nbsp; +0.73% this month</span></div>
                 </div>
                 <div className="sc" style={{ borderColor: 'rgba(16,185,129,.2)' }}>
                   <div className="sc-lbl">JMPro Gain</div>
                   <div className="sc-val green">₹31.58L</div>
-                  <div className="sc-chg" style={{ color: 'var(--green)' }}>+27.4% overall</div>
+                  <div className="sc-chg" style={{ color: 'var(--green)' }}>+₹31.58L &nbsp;·&nbsp; +27.4% overall</div>
                 </div>
                 <div className="sc" style={{ borderColor: 'rgba(16,185,129,.2)' }}>
                   <div className="sc-lbl">JMPro XIRR</div>
                   <div className="sc-val">21.3%</div>
-                  <div className="sc-chg">Annualised return</div>
+                  <div className="sc-chg"><span className="pos">↑ +2.1% vs last yr</span></div>
                 </div>
               </div>
             ) : (
               <div className="scards">
-                <div className="sc"><div className="sc-lbl">Total Wealth</div><div className="sc-val gold">₹18.42 Cr</div><div className="sc-chg"><span className="pos">↑ ₹1.2L this month</span></div></div>
-                <div className="sc"><div className="sc-lbl">Overall Gain</div><div className="sc-val green">₹45.78L</div><div className="sc-chg" style={{ color: 'var(--green)' }}>+33.1% overall</div></div>
-                <div className="sc"><div className="sc-lbl">XIRR (Overall)</div><div className="sc-val">19.8%</div><div className="sc-chg">Annualised return</div></div>
+                <div className="sc">
+                  <div className="sc-lbl">Total Wealth</div>
+                  <div className="sc-val gold">₹18.42 Cr</div>
+                  <div className="sc-chg"><span className="pos">↑ ₹1.2L &nbsp;·&nbsp; +0.65% this month</span></div>
+                </div>
+                <div className="sc">
+                  <div className="sc-lbl">Overall Gain</div>
+                  <div className="sc-val green">₹45.78L</div>
+                  <div className="sc-chg" style={{ color: 'var(--green)' }}>+₹45.78L &nbsp;·&nbsp; +33.1% overall</div>
+                </div>
+                <div className="sc">
+                  <div className="sc-lbl">XIRR (Overall)</div>
+                  <div className="sc-val">19.8%</div>
+                  <div className="sc-chg"><span className="pos">↑ +1.8% vs last yr</span></div>
+                </div>
               </div>
             )}
 
@@ -197,41 +211,127 @@ export default function HNIPage() {
               </div>
             )}
 
-            {/* Holdings */}
-            {panConnected && (
+            {/* Holding sub-tabs */}
+            <div className="htabs">
+              {([
+                { key: 'jm-eq', label: 'JMPro Equity' },
+                { key: 'jm-mf', label: 'JMPro Mutual Funds' },
+                { key: 'external', label: 'External Holdings' },
+              ] as { key: HoldingTab; label: string }[]).map(({ key, label }) => (
+                <div
+                  key={key}
+                  className={`htab${holdingTab === key ? ' act' : ''}`}
+                  onClick={() => setHoldingTab(key)}
+                >
+                  {label}
+                </div>
+              ))}
+            </div>
+
+            {/* JMPro Equity */}
+            {holdingTab === 'jm-eq' && (
               <div>
-                <div className="sec-div"><div className="sec-div-line" /><div className="sec-div-lbl">🟢 Your JMPro Holdings</div><div className="sec-div-line" /></div>
-                <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 10 }}>Stocks &amp; MFs held directly through JMPro</div>
-                {jmHoldings.map((h) => <HoldingRow key={h.id} h={h} isJM={true} />)}
+                <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 10 }}>Equity stocks held directly through JMPro</div>
+                {jmHoldings.filter((h) => h.t === 'eq').map((h) => <HoldingRow key={h.id} h={h} isJM={true} />)}
+              </div>
+            )}
 
-                <div className="sec-div" style={{ marginTop: 24 }}><div className="sec-div-line" /><div className="sec-div-lbl">🔗 External Holdings via CAMS / CDSL / NSDL</div><div className="sec-div-line" /></div>
-                <div className="filter-row">
-                  {(['all', 'mf', 'eq'] as ExtFilter[]).map((f) => (
-                    <div key={f} className={`fc${extFilter === f ? ' act' : ''}`} onClick={() => setExtFilter(f)}>
-                      {f === 'all' ? 'All' : f === 'mf' ? 'Mutual Funds' : 'Equity'}
+            {/* JMPro Mutual Funds */}
+            {holdingTab === 'jm-mf' && (
+              <div>
+                <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 10 }}>Mutual fund schemes held directly through JMPro</div>
+                {jmHoldings.filter((h) => h.t === 'mf').map((h) => <HoldingRow key={h.id} h={h} isJM={true} />)}
+              </div>
+            )}
+
+            {/* External Holdings */}
+            {holdingTab === 'external' && (
+              <div>
+                {!panConnected ? (
+                  <div>
+                    <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
+                      {[
+                        { src: 'CAMS', desc: 'Mutual Fund holdings', icon: '📄' },
+                        { src: 'CDSL', desc: 'Demat equity holdings', icon: '📊' },
+                        { src: 'NSDL', desc: 'Demat equity holdings', icon: '📈' },
+                      ].map(({ src, desc, icon }) => (
+                        <div key={src} className="ext-connect-card">
+                          <div className="ext-connect-icon">{icon}</div>
+                          <div className="ext-connect-info">
+                            <div className="ext-connect-name">{src}</div>
+                            <div className="ext-connect-desc">{desc}</div>
+                          </div>
+                          <div className="ext-connect-badge">Not connected</div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-                {filteredExt.map((h) => <HoldingRow key={h.id} h={h} isJM={false} />)}
-
-                <div className="sec-div" style={{ marginTop: 24 }}><div className="sec-div-line" /><div className="sec-div-lbl">🏠 Self-Declared Assets</div><div className="sec-div-line" /></div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                  <div style={{ fontSize: 12, color: 'var(--text3)', flex: 1 }}>FDs, real estate, unlisted shares — manually added</div>
-                  <button className="btn-fetch" onClick={openAddAsset} style={{ padding: '5px 14px', fontSize: 12 }}>+ Add Asset</button>
-                </div>
-                {selfAssets.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: 20, color: 'var(--text3)', fontSize: 12 }}>No self-declared assets. Click "Add Asset" to include FDs, real estate, etc.</div>
-                ) : (
-                  selfAssets.map((a) => (
-                    <div key={a.id} className="sd-item">
-                      <div className="sd-info">
-                        <div className="sd-name">{a.name}</div>
-                        <div className="sd-type">{typeLabels[a.type] || a.type}{a.institution ? ' · ' + a.institution : ''}</div>
+                    <div className="unify" onClick={() => setPanFormOpen(true)}>
+                      <div className="unify-icon">🔗</div>
+                      <div className="unify-text">
+                        <strong>Connect CAMS / CDSL / NSDL</strong>
+                        <span>Enter your PAN to fetch all external holdings</span>
                       </div>
-                      <div className="sd-val">₹{fmt(a.value)}</div>
-                      <button className="sd-del" onClick={() => deleteSelfAsset(a.id)}>×</button>
+                      <div className="unify-arrow">→</div>
                     </div>
-                  ))
+                    {panFormOpen && (
+                      <div className="pan-form">
+                        <div className="pan-form-title" style={{ marginTop: 16 }}>Connect Your Accounts</div>
+                        <div className="pan-form-sub">Enter your PAN to fetch mutual fund holdings from CAMS and equity holdings from CDSL/NSDL</div>
+                        <div className="pan-row">
+                          <input className="pan-in" type="text" placeholder="ABCDE1234F" maxLength={10} value={panValue} onChange={(e) => setPanValue(e.target.value.toUpperCase())} />
+                          <button className="btn-fetch" onClick={fetchHoldings}>Fetch Holdings</button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div>
+                    <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
+                      {[
+                        { src: 'CAMS', desc: `${extHoldings.filter(h => h.src === 'cams').length} MF schemes`, icon: '📄', cls: 'cams' },
+                        { src: 'CDSL', desc: `${extHoldings.filter(h => h.src === 'cdsl').length} equity holdings`, icon: '📊', cls: 'cdsl' },
+                        { src: 'NSDL', desc: `${extHoldings.filter(h => h.src === 'nsdl').length} equity holdings`, icon: '📈', cls: 'nsdl' },
+                      ].map(({ src, desc, icon, cls }) => (
+                        <div key={src} className="ext-src-card">
+                          <div className="ext-connect-icon">{icon}</div>
+                          <div className="ext-connect-info">
+                            <div className="ext-connect-name">{src}</div>
+                            <div className="ext-connect-desc">{desc}</div>
+                          </div>
+                          <span className={`src ${cls}`} style={{ fontSize: 11 }}>Connected</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="filter-row">
+                      {(['all', 'mf', 'eq'] as ExtFilter[]).map((f) => (
+                        <div key={f} className={`fc${extFilter === f ? ' act' : ''}`} onClick={() => setExtFilter(f)}>
+                          {f === 'all' ? 'All' : f === 'mf' ? 'Mutual Funds' : 'Equity'}
+                        </div>
+                      ))}
+                    </div>
+                    {filteredExt.map((h) => <HoldingRow key={h.id} h={h} isJM={false} />)}
+
+                    <div className="sec-div" style={{ marginTop: 24 }}><div className="sec-div-line" /><div className="sec-div-lbl">🏠 Self-Declared Assets</div><div className="sec-div-line" /></div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                      <div style={{ fontSize: 12, color: 'var(--text3)', flex: 1 }}>FDs, real estate, unlisted shares — manually added</div>
+                      <button className="btn-fetch" onClick={openAddAsset} style={{ padding: '5px 14px', fontSize: 12 }}>+ Add Asset</button>
+                    </div>
+                    {selfAssets.length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: 20, color: 'var(--text3)', fontSize: 12 }}>No self-declared assets. Click "Add Asset" to include FDs, real estate, etc.</div>
+                    ) : (
+                      selfAssets.map((a) => (
+                        <div key={a.id} className="sd-item">
+                          <div className="sd-info">
+                            <div className="sd-name">{a.name}</div>
+                            <div className="sd-type">{typeLabels[a.type] || a.type}{a.institution ? ' · ' + a.institution : ''}</div>
+                          </div>
+                          <div className="sd-val">₹{fmt(a.value)}</div>
+                          <button className="sd-del" onClick={() => deleteSelfAsset(a.id)}>×</button>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 )}
               </div>
             )}

@@ -108,6 +108,21 @@ body{font-family:'Barlow',sans-serif;background:var(--navy);color:var(--text);mi
 .stab.act{background:var(--navy4);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.4)}
 .stab:hover:not(.act){color:var(--text);background:rgba(255,255,255,.03)}
 
+/* Holding sub-tabs */
+.htabs{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+.htab{padding:6px 16px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid var(--border);color:var(--text2);cursor:pointer;transition:all .2s}
+.htab.act{background:rgba(31,49,127,.1);border-color:rgba(31,49,127,.35);color:var(--gold)}
+.htab:hover:not(.act){border-color:var(--border2);color:var(--text)}
+
+/* External connect cards */
+.ext-connect-card,.ext-src-card{display:flex;align-items:center;gap:10px;flex:1;min-width:140px;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.ext-src-card{border-color:rgba(16,185,129,.2)}
+.ext-connect-icon{font-size:20px;flex-shrink:0}
+.ext-connect-info{flex:1;min-width:0}
+.ext-connect-name{font-size:13px;font-weight:600;color:var(--text)}
+.ext-connect-desc{font-size:11px;color:var(--text3);margin-top:2px}
+.ext-connect-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:rgba(239,68,68,.08);color:var(--red);border:1px solid rgba(239,68,68,.2);white-space:nowrap}
+
 /* Summary cards */
 .scards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
 .sc{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:18px}
